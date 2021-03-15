@@ -20,7 +20,8 @@ const restricted = async (req, res, next) => {
     Put the decoded token in the req object, to make life easier for middlewares downstream!
   */
  try {
-   const token = req.cookies.token
+   const token = req.headers.authorization
+  //  console.log(token)
    if (!token) {
     return res.status(401).json({
       message: "Token required",
@@ -57,8 +58,8 @@ const only = role_name => (req, res, next) => {
   */
  try {
    const decodedToken = req.token
-   console.log(decodedToken)
-   if (role_name && (decodedToken.role_name) ){
+  //  console.log(decodedToken)
+   if (role_name !== (decodedToken.role_name) ){
     return res.status(403).json({
       message: "This is not for you"
     })
@@ -94,7 +95,7 @@ const checkUsernameExists = async (req, res, next) => {
 }
 
 
-const validateRoleName = (req, res, next) => {
+const validateRoleName = async (req, res, next) => {
   /*
     If the role_name in the body is valid, set req.role_name to be the trimmed string and proceed.
 
@@ -113,6 +114,34 @@ const validateRoleName = (req, res, next) => {
       "message": "Role name can not be longer than 32 chars"
     }
   */
+ try {
+  let { role_name } = req.body
+  role_name ? req.body.role_name = role_name.trim() : ""
+  // const trimmedRoleName = role_name.trim
+  // console.log("trim", req.body.role_name)
+
+  if (!role_name || role_name === "") {
+    
+    req.body.role_name = "student"
+    // console.log(req.body)
+    return next()
+  }
+  
+  if (req.body.role_name === "admin") {
+    return res.status(422).json({
+      message: "Role name can not be admin"
+    })
+  }
+  if (req.body.role_name.length > 32) {
+    return res.status(422).json({
+      message: "Role name can not be longer than 32 chars"
+    })
+  }
+  next()
+  
+ } catch(err) {
+   next(err)
+ }
 }
 
 module.exports = {

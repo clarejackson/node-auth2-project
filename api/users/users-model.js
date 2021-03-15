@@ -38,6 +38,7 @@ function findBy(filter) {
     ]
    */
   console.log("model", filter)
+  // console.log(filter.username)
   return db("users as u")
   .join("roles as r", "r.role_id", "u.role_id")
   .select("u.user_id", "u.username", "u.password", "r.role_name")
@@ -93,6 +94,7 @@ async function add({ username, password, role_name }) { // done for you
     const [user_id] = await trx('users').insert({ username, password, role_id: role_id_to_use })
     created_user_id = user_id
   })
+  console.log(created_user_id)
   return findById(created_user_id)
 }
 
