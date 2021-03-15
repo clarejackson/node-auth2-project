@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken')
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 const model = require('../users/users-model')
 const bcrypt = require("bcryptjs")
-
-router.post("/register", validateRoleName, async (req, res, next) => {
+// validateRoleName,
+router.post("/register",  async (req, res, next) => {
   /**
     [POST] /api/auth/register { "username": "anna", "password": "1234", "role_name": "angel" }
 
@@ -20,7 +20,7 @@ router.post("/register", validateRoleName, async (req, res, next) => {
   try {
     const { username, password, role_name } = req.body
 
-    const hashedPW = await bcrypt.hash(password, 14)
+    const hashedPW = await bcrypt.hash(password, 10)
 
     const newUser = await model.add({
       username,
@@ -28,10 +28,10 @@ router.post("/register", validateRoleName, async (req, res, next) => {
       role_name,
     })
 
-    res.status(201).json(
-      newUser.user_id, 
-      newUser.username, 
-      newUser.role_name)
+    res.status(201).json({
+      user_id: newUser.user_id, 
+      username: newUser.username, 
+      role_name: newUser.role_name})
 
   } catch(err) {
     next(err)
@@ -60,11 +60,13 @@ router.post("/login", checkUsernameExists, async (req, res, next) => {
     }
    */
   try {
+    
   const { username, password } = req.body
-  const user = await model.findBy(username)
-
-  const passwordValid = await bcrypt.compare(password, user.password)
-
+  console.log("username", username)
+  const user = await model.findBy({ username })
+  console.log("user", user)
+  const passwordValid = await bcrypt.compare(password, user[0].password)
+    console.log(passwordValid, "valid?")
 		if (!passwordValid) {
 			return res.status(401).json({
 				message: "Invalid Credentials",
@@ -79,7 +81,7 @@ router.post("/login", checkUsernameExists, async (req, res, next) => {
 
   res.cookie("token", token)
   res.status(200).json({
-    message: `${user.username} is back!`,
+    message: `${user[0].username} is back!`,
     token: token,
   })
 } catch(err) {
