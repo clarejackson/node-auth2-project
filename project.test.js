@@ -65,12 +65,12 @@ describe('server.js', () => {
     it('[5] creates a new user with role_id 3 (the default role) when client does not provide role_name', async () => {
       await request(server).post('/api/auth/register').send({ username: 'devon', password: '1234' })
       const devon = await db('users').where('username', 'devon').first()
-      expect(devon).toMatchObject({ role_id: 2 })
+      expect(devon).toMatchObject({ role_id: 3 })
     }, 500)
     it('[6] creates a new user with role_id 2 (existing role instructor) when client provides role_name instructor', async () => {
       await request(server).post('/api/auth/register').send({ username: 'devon', password: '1234', role_name: 'instructor' })
       const devon = await db('users').where('username', 'devon').first()
-      expect(devon).toMatchObject({ role_id: 3 })
+      expect(devon).toMatchObject({ role_id: 2 })
     }, 500)
     it('[7] creates a new user with a brand new role_id when client provides a role_name that does not exist yet', async () => {
       await request(server).post('/api/auth/register').send({ username: 'devon', password: '1234', role_name: 'valid' })
